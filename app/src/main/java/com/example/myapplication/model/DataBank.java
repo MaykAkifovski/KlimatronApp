@@ -1,5 +1,6 @@
 package com.example.myapplication.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +20,10 @@ public class DataBank {
 
     private Map<String, ArduinoBoard> arduinoBoardMap = new HashMap<>();
     private Map<String, String> clientToBoardName = new HashMap<>();
+    private List<String> clients = new ArrayList<>();
 
     public List<String> getClients() {
-        return arduinoBoardMap.keySet().stream().sorted().collect(Collectors.toList());
+        return clients;
     }
 
     public ArduinoBoard getArduinoBoard(String boardName) {
@@ -37,6 +39,8 @@ public class DataBank {
             arduinoBoard.setBoardName(arduinoBoard.getClient());
         }
         arduinoBoardMap.put(arduinoBoard.getBoardName(), arduinoBoard);
+        clients.clear();
+        clients.addAll(arduinoBoardMap.keySet().stream().sorted().collect(Collectors.toList()));
     }
 
     public List<String> getSensorsInfo(String client) {
@@ -48,6 +52,7 @@ public class DataBank {
         if (arduinoBoard != null) {
             arduinoBoard.setBoardName(newBoardName);
             clientToBoardName.put(arduinoBoard.getClient(), arduinoBoard.getBoardName());
+            arduinoBoardMap.remove(currentBoardName);
             arduinoBoardMap.put(arduinoBoard.getBoardName(), arduinoBoard);
         }
     }
