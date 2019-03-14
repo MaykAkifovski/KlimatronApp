@@ -12,8 +12,9 @@ public class Sensor {
     public Sensor() {
     }
 
-    public Sensor(String id, Double temperature) {
+    public Sensor(String id, String name, Double temperature) {
         this.id = id;
+        this.name = name;
         this.temperature = temperature;
     }
 

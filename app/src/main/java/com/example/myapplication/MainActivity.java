@@ -1,17 +1,15 @@
 package com.example.myapplication;
 
-import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.example.myapplication.database.DatabaseSingleton;
+import com.example.myapplication.database.MessageParser;
 import com.example.myapplication.helper.MqttHelper;
-import com.example.myapplication.model.ArduinoBoard;
-import com.example.myapplication.model.DataBank;
-import com.example.myapplication.model.Sensor;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
@@ -20,32 +18,32 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 public class MainActivity extends AppCompatActivity {
 
     MqttHelper mqttHelper;
+    MessageParser messageParser;
+    DatabaseSingleton dbSingleton;
 
     Toolbar toolbarApp;
-    ListView listViewBoard;
-    ArrayAdapter<String> arrayAdapter;
-
-    private DataBank instance = DataBank.getInstance();
+    ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        messageParser = new MessageParser(this);
+        dbSingleton = DatabaseSingleton.getInstance();
+
         toolbarApp = findViewById(R.id.toolbarApp);
         toolbarApp.setTitle(getResources().getString(R.string.app_name));
 
-        listViewBoard = findViewById(R.id.listViewBoard);
-        arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, instance.getClients());
-        listViewBoard.setAdapter(arrayAdapter);
-
-        listViewBoard.setOnItemClickListener((parent, view, position, id) -> {
-            Intent intent = new Intent(this, BoardActivity.class);
-            intent.putExtra("client", listViewBoard.getItemAtPosition(position).toString());
-            startActivity(intent);
-        });
-
         startMqtt();
+
+//        listView.setOnItemClickListener((parent, view, position, id) -> {
+//            Intent intent = new Intent(this, BoardActivity.class);
+//            IdAndBoardName itemAtPosition = (IdAndBoardName) listView.getItemAtPosition(position);
+//            intent.putExtra("id", itemAtPosition.getId());
+//            intent.putExtra("boardName", itemAtPosition.getBoardName());
+//            startActivity(intent);
+//        });
     }
 
     private void startMqtt() {
@@ -66,10 +64,9 @@ public class MainActivity extends AppCompatActivity {
                 if (topic.contains("SENSOR")) {
                     Log.w("Debug", mqttMessage.toString());
 
-                    ArduinoBoard arduinoBoard = new ArduinoBoard(topic.replace("/SENSOR", ""), mqttMessage.toString());
-                    instance.addArduinoBoard(arduinoBoard);
-                    arrayAdapter.notifyDataSetChanged();
-                    checkTemperature(arduinoBoard);
+                    MessageParser data = MainActivity.this.messageParser.parseMqttMessage(topic.replace("/SENSOR", ""), mqttMessage.toString());
+                    dbSingleton.addData(data);
+                    updateData();
                 }
             }
 
@@ -80,23 +77,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void checkTemperature(ArduinoBoard arduinoBoard) {
-        for (Sensor sensor : arduinoBoard.getSensors()) {
-            if (!isTemperatureOkay(sensor)) {
-                sendEmail(sensor, arduinoBoard.getBoardName());
-            }
-        }
-    }
-
-    private void sendEmail(Sensor sensor, String client) {
-
-    }
-
-    private boolean isTemperatureOkay(Sensor sensor) {
-        if (sensor.getMin() != null && sensor.getMax() != null) {
-            return sensor.getTemperature() >= sensor.getMin() || sensor.getTemperature() <= sensor.getMax();
-        } else {
-            return true;
-        }
+    private void updateData() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, dbSingleton.getBoardNames());
+        listView = findViewById(R.id.listViewBoard);
+        listView.setAdapter(adapter);
     }
 }

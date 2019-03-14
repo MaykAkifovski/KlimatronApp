@@ -1,8 +1,8 @@
 package com.example.myapplication;
 
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -11,11 +11,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.myapplication.model.DataBank;
-
 public class BoardActivity extends AppCompatActivity {
 
-    DataBank instance = DataBank.getInstance();
+//    DataBank instance = DataBank.getInstance();
 
     Toolbar toolbarBoard;
     ListView listViewSensor;
@@ -36,7 +34,7 @@ public class BoardActivity extends AppCompatActivity {
         }
 
         listViewSensor = findViewById(R.id.listViewSensor);
-        arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, instance.getSensorsInfo(client));
+//        arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, instance.getSensorsInfo(client));
         listViewSensor.setAdapter(arrayAdapter);
 
 
@@ -52,7 +50,7 @@ public class BoardActivity extends AppCompatActivity {
             mSave.setOnClickListener(buttonView -> {
                 if (!mBoardName.getText().toString().isEmpty()) {
                     String newBoardName = mBoardName.getText().toString();
-                    instance.changeBoardName(currentBoardName, newBoardName);
+//                    instance.changeBoardName(currentBoardName, newBoardName);
                     arrayAdapter.notifyDataSetChanged();
                     toolbarBoard.setTitle(newBoardName);
                     Toast.makeText(
