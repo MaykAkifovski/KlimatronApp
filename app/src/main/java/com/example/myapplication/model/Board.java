@@ -1,7 +1,5 @@
 package com.example.myapplication.model;
 
-import com.example.myapplication.database.MessageParser;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +11,8 @@ public class Board {
     private LocalDateTime time;
     private List<Sensor> sensors;
 
-    public Board(MessageParser data) {
-        client = data.client;
-        boardName = data.boardName;
-        time = LocalDateTime.parse(data.time);
-        sensors = new ArrayList<>(data.sensors);
+    public Board() {
+        sensors = new ArrayList<>();
     }
 
     public String getBoardName() {
@@ -40,8 +35,8 @@ public class Board {
         return time;
     }
 
-    public void setTime(LocalDateTime time) {
-        this.time = time;
+    public void setTime(String time) {
+        this.time = LocalDateTime.parse(time);
     }
 
     public List<Sensor> getSensors() {
@@ -50,5 +45,9 @@ public class Board {
 
     public void setSensors(List<Sensor> sensors) {
         this.sensors = sensors;
+    }
+
+    public void addSensor(Sensor sensor) {
+        this.sensors.add(sensor);
     }
 }

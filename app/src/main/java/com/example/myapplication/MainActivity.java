@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,6 +11,7 @@ import android.widget.ListView;
 import com.example.myapplication.database.DatabaseSingleton;
 import com.example.myapplication.database.MessageParser;
 import com.example.myapplication.helper.MqttHelper;
+import com.example.myapplication.model.Board;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
@@ -35,15 +37,16 @@ public class MainActivity extends AppCompatActivity {
         toolbarApp = findViewById(R.id.toolbarApp);
         toolbarApp.setTitle(getResources().getString(R.string.app_name));
 
+        listView = findViewById(R.id.listViewBoard);
+
         startMqtt();
 
-//        listView.setOnItemClickListener((parent, view, position, id) -> {
-//            Intent intent = new Intent(this, BoardActivity.class);
-//            IdAndBoardName itemAtPosition = (IdAndBoardName) listView.getItemAtPosition(position);
-//            intent.putExtra("id", itemAtPosition.getId());
-//            intent.putExtra("boardName", itemAtPosition.getBoardName());
-//            startActivity(intent);
-//        });
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            Intent intent = new Intent(this, BoardActivity.class);
+            String boardName = (String) listView.getItemAtPosition(position);
+            intent.putExtra("boardName", boardName);
+            startActivity(intent);
+        });
     }
 
     private void startMqtt() {
@@ -64,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                 if (topic.contains("SENSOR")) {
                     Log.w("Debug", mqttMessage.toString());
 
-                    MessageParser data = MainActivity.this.messageParser.parseMqttMessage(topic.replace("/SENSOR", ""), mqttMessage.toString());
+                    Board data = MainActivity.this.messageParser.parseMqttMessage(topic.replace("/SENSOR", ""), mqttMessage.toString());
                     dbSingleton.addData(data);
                     updateData();
                 }
@@ -79,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateData() {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, dbSingleton.getBoardNames());
-        listView = findViewById(R.id.listViewBoard);
         listView.setAdapter(adapter);
     }
 }

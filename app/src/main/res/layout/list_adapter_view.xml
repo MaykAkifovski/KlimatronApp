@@ -6,18 +6,34 @@
     android:weightSum="100">
 
     <TextView
-        android:id="@+id/textId"
+        android:id="@+id/textSensorName"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="50"
+        android:layout_weight="20"
         android:textSize="20sp"
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/textBoardName"
+        android:id="@+id/textT"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="50"
+        android:layout_weight="27"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textTmin"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="27"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textTmax"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="27"
         android:textSize="20sp"
         android:textStyle="bold" />
 

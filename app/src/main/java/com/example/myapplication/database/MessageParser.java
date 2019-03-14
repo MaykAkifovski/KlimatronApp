@@ -1,13 +1,12 @@
 package com.example.myapplication.database;
 
 import com.example.myapplication.MainActivity;
+import com.example.myapplication.model.Board;
 import com.example.myapplication.model.Sensor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class MessageParser {
@@ -19,38 +18,33 @@ public class MessageParser {
     private ObjectMapper objectMapper;
     private DatabaseHelper dbHelper;
 
-    public String client;
-    public String boardName;
-    public String time;
-    public List<Sensor> sensors;
-
     public MessageParser(MainActivity mainActivity) {
         this.objectMapper = new ObjectMapper();
         this.dbHelper = new DatabaseHelper(mainActivity);
-        this.sensors = new ArrayList<>();
     }
 
-    public MessageParser parseMqttMessage(String client, String message) {
-        this.client = client;
-        this.boardName = dbHelper.getBoardName(client);
+    public Board parseMqttMessage(String client, String message) {
+        Board board = new Board();
+        board.setClient(client);
+        board.setBoardName(dbHelper.getBoardName(client));
         try {
             JsonNode jsonNode = objectMapper.readTree(message);
-            jsonNode.fields().forEachRemaining(this::parseField);
+            jsonNode.fields().forEachRemaining(entry -> parseField(board, entry));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return this;
+        return board;
     }
 
-    private void parseField(Map.Entry<String, JsonNode> field) {
+    private void parseField(Board board, Map.Entry<String, JsonNode> field) {
         if (field.getKey().equals("Time")) {
-            this.time = field.getValue().asText();
+            board.setTime(field.getValue().asText());
         } else if (field.getKey().contains("DS18B20") && field.getValue().has("Id")) {
             Sensor sensor = new Sensor();
             sensor.setId(field.getValue().get("Id").asText());
             setSensorName(sensor, field.getKey());
             sensor.setTemperature(field.getValue().get("Temperature").asDouble());
-            sensors.add(sensor);
+            board.addSensor(sensor);
         }
     }
 
